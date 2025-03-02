@@ -1,11 +1,8 @@
 # ÆtherStrum 🎵
 
-An ethereal musical instrument that combines visual art with sound synthesis. Create mesmerizing music by interacting with vibrating strings in a beautiful, particle-rich environment.
+An ethereal musical instrument that combines visual art with sound synthesis. Create mesmerizing music by interacting with vibrating strings in a beautiful, particle-rich environment. [Demo](https://drbaph.dev)
 
-
-
-https://github.com/user-attachments/assets/15a882db-64ff-4dd4-b65a-4bf92f6fb113
-
+![og-image](https://github.com/user-attachments/assets/a3636bb9-9d8b-4d8b-8b49-b5c29edd013b)
 
 
 ## ✨ Features
@@ -71,11 +68,13 @@ Access these by clicking the music note button in the bottom right corner. The s
 - Canvas API for visual effects
 - Pure JavaScript for physics simulation
 
+https://github.com/user-attachments/assets/15a882db-64ff-4dd4-b65a-4bf92f6fb113
+
 ## 📜 License
 
 ÆtherStrum is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for more information.
 
 ## 🌐 Author
 
-Created by DrBaph  
+by DrBaph  
 Visit [drbaph.dev](https://drbaph.dev) for more projects
