@@ -2,7 +2,7 @@
 
 An ethereal musical instrument that combines visual art with sound synthesis. Create mesmerizing music by interacting with vibrating strings in a beautiful, particle-rich environment. [Demo](https://drbaph.dev)
 
-![og-image](https://github.com/user-attachments/assets/a3636bb9-9d8b-4d8b-8b49-b5c29edd013b)
+![og-image](https://saganaki22.github.io/AetherStrum/)
 
 
 ## ✨ Features
