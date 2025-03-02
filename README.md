@@ -2,6 +2,12 @@
 
 An ethereal musical instrument that combines visual art with sound synthesis. Create mesmerizing music by interacting with vibrating strings in a beautiful, particle-rich environment.
 
+
+
+https://github.com/user-attachments/assets/15a882db-64ff-4dd4-b65a-4bf92f6fb113
+
+
+
 ## ✨ Features
 
 - **Multi-Instrument Support**
