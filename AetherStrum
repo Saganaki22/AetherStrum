@@ -1,0 +1,2407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ÆtherStrum</title>
+
+    <!-- Meta Description -->
+    <meta name="description" content="AetherStrum is an ethereal musical instrument that combines visual art with sound synthesis. Create mesmerizing music by interacting with vibrating strings in a beautiful, particle-rich environment.">
+
+    <!-- Favicon Links -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/favicon/site.webmanifest">
+    <link rel="shortcut icon" href="/favicon/favicon.ico">
+
+    <!-- Open Graph Meta Tags (for social sharing) -->
+    <meta property="og:title" content="AetherStrum :: Interactive Music Experience">
+    <meta property="og:description" content="AetherStrum is an ethereal musical instrument that combines visual art with sound synthesis. Create mesmerizing music by interacting with vibrating strings in a beautiful, particle-rich environment.">
+    <meta property="og:image" content="https://i.ibb.co/Mk7tXDyK/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://saganaki22.github.io/AetherStrum/">
+
+    <!-- Twitter Card (for better previews on Twitter) -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="AetherStrum :: Interactive Music Experience">
+    <meta name="twitter:description" content="AetherStrum is an ethereal musical instrument that combines visual art with sound synthesis. Create mesmerizing music by interacting with vibrating strings in a beautiful, particle-rich environment.">
+    <meta name="twitter:image" content="https://i.ibb.co/Mk7tXDyK/og-image.jpg">
+
+    <!-- Terminal styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Use unpkg for Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Montserrat', sans-serif;
+            color: rgba(255, 255, 255, 0.8);
+            touch-action: manipulation;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .ui-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 50px;
+            opacity: 0.9;
+            transition: opacity 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .ui-container:hover {
+            opacity: 1;
+        }
+
+        .control-btn {
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .control-btn:hover {
+            background: rgba(60, 60, 60, 0.7);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .control-btn.active {
+            color: #64FFDA;
+            border-color: #64FFDA;
+        }
+
+        .control-btn#recordBtn {
+            background: rgba(40, 10, 10, 0.7);
+            border: 1.5px solid rgba(255, 75, 75, 0.5);
+        }
+        
+        .control-btn#recordBtn i {
+            color: #FF4B4B;
+        }
+
+        .control-btn.recording {
+            background-color: rgba(255, 30, 30, 0.25);
+            box-shadow: 0 0 0 rgba(255, 75, 75, 0.6);
+            animation: pulse 2s infinite;
+            border: 1.5px solid #FF4B4B;
+        }
+        
+        .control-btn.recording i {
+            color: #FF4B4B;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { opacity: 0.7; }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.6);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 75, 75, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 75, 75, 0);
+            }
+        }
+
+        .recording-time {
+            min-width: 60px;
+            text-align: center;
+            font-size: 14px;
+            display: none;
+        }
+
+        .recording-time.visible {
+            display: block;
+        }
+
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-slider {
+            -webkit-appearance: none;
+            width: 80px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .volume-slider:focus, .volume-slider:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 300px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 3;
+            padding: 20px;
+            transition: right 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .settings-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .color-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.2s ease;
+        }
+
+        .color-option.active {
+            border: 2px solid #fff;
+        }
+        
+        .instrument-select {
+            width: 100%;
+            padding: 8px 10px;
+            background-color: rgba(30, 30, 30, 0.8);
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .instrument-select:focus {
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .instrument-description {
+            font-size: 12px;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .welcome-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .welcome-title {
+            font-size: 42px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1.5s ease forwards;
+        }
+
+        .welcome-subtitle {
+            font-size: 18px;
+            font-weight: 300;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1.5s ease 0.5s forwards;
+        }
+
+        .start-btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: breathe 3s infinite ease-in-out;
+            backdrop-filter: blur(10px);
+        }
+
+        .start-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+            animation: none;
+        }
+
+        @keyframes breathe {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+            }
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .info-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+
+        .info-btn:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            max-width: 300px;
+            z-index: 2;
+        }
+
+        .info-tooltip {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 8px;
+            width: 280px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        #infoBtn:hover + .info-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .github-link {
+            color: rgba(255, 255, 255, 0.8);
+            transition: color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(30, 30, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .github-link:hover {
+            color: #fff;
+            background: rgba(60, 60, 60, 0.7);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .github-link svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .settings-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .settings-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 15px 0;
+        }
+
+        .settings-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s ease;
+            display: block;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .settings-link:hover {
+            color: #fff;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #444;
+            transition: .4s;
+            border-radius: 20px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background-color: var(--accent-color);
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(20px);
+        }
+
+        .range-slider {
+            flex-grow: 1;
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+        }
+
+        .autoplay-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: none !important;
+            z-index: 2;
+        }
+
+        .autoplay-btn.visible {
+            display: flex !important;
+        }
+
+        @media (max-width: 768px) {
+            .info-panel {
+                top: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="lyraCanvas"></canvas>
+
+    <div class="ui-container">
+        <button class="control-btn active" id="playBtn">
+            <i class="ph ph-speaker-high"></i>
+        </button>
+        <div class="volume-container">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 256 256">
+                <path d="M155.51,24.81a8,8,0,0,0-8.42.88L77.25,80H32A16,16,0,0,0,16,96v64a16,16,0,0,0,16,16H77.25l69.84,54.31A8,8,0,0,0,160,224V32A8,8,0,0,0,155.51,24.81ZM144,207.64,84.91,160H32V96H84.91L144,48.36ZM200,128a39.71,39.71,0,0,1-10,26.46,8,8,0,0,1-12-10.58,24,24,0,0,0,0-31.72,8,8,0,1,1,12-10.58A39.73,39.73,0,0,1,200,128Z"></path>
+            </svg>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.5">
+        </div>
+        <div class="recording-time" id="recordingTime">00:00</div>
+        <button class="control-btn" id="recordBtn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF4B4B" viewBox="0 0 256 256">
+                <path d="M128,176a48.05,48.05,0,0,0,48-48V64a48,48,0,0,0-96,0v64A48.05,48.05,0,0,0,128,176ZM96,64a32,32,0,0,1,64,0v64a32,32,0,0,1-64,0Zm40,143.54V232a8,8,0,0,1-16,0V207.54A80.09,80.09,0,0,1,48,128a8,8,0,0,1,16,0,64,64,0,0,0,128,0,8,8,0,0,1,16,0A80.09,80.09,0,0,1,136,207.54Z"></path>
+            </svg>
+        </button>
+        <button class="control-btn" id="settingsBtn">
+            <i class="ph ph-gear"></i>
+        </button>
+    </div>
+
+    <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+            <h2>Settings</h2>
+            <button class="settings-close" id="settingsClose"><i class="ph ph-x"></i></button>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">Instrument</div>
+            <div class="instrument-options">
+                <select id="instrumentSelect" class="instrument-select">
+                    <option value="lyra">Lyra</option>
+                    <option value="guitar">Guitar</option>
+                    <option value="violin">Violin</option>
+                    <option value="ukulele">Ukulele</option>
+                    <option value="banjo">Banjo</option>
+                    <option value="hangdrum">Hang Drum</option>
+                    <option value="bassguitar">Bass Guitar</option>
+                    <option value="ocarina">Ocarina</option>
+                </select>
+            </div>
+            <div class="instrument-description" id="instrumentDescription">
+                A harp-like instrument with gentle string sounds
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">Vibration Intensity</div>
+            <input type="range" class="range-slider" id="intensitySlider" min="1" max="10" step="0.1" value="5">
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">String Tension</div>
+            <input type="range" class="range-slider" id="tensionSlider" min="0.1" max="0.9" step="0.05" value="0.5">
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">Particles</div>
+            <div class="settings-row">
+                <label class="toggle">
+                    <input type="checkbox" id="particlesToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <input type="range" class="range-slider" id="particleSlider" min="10" max="100" step="1" value="40">
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">Tracers</div>
+            <div class="settings-row">
+                <label class="toggle">
+                    <input type="checkbox" id="tracersToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <input type="range" class="range-slider" id="tracerSlider" min="1" max="5" step="1" value="3">
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">Reverb</div>
+            <div class="settings-row">
+                <label class="toggle">
+                    <input type="checkbox" id="reverbToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <input type="range" class="range-slider" id="reverbSlider" min="0" max="1" step="0.01" value="0.5">
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-label">Color Theme</div>
+            <div class="color-options">
+                <div class="color-option active" data-theme="default" style="background: linear-gradient(45deg, #00C9FF, #92FE9D)"></div>
+                <div class="color-option" data-theme="cosmic" style="background: linear-gradient(45deg, #8E2DE2, #4A00E0)"></div>
+                <div class="color-option" data-theme="sunset" style="background: linear-gradient(45deg, #FF416C, #FF4B2B)"></div>
+                <div class="color-option" data-theme="ocean" style="background: linear-gradient(45deg, #2E3192, #1BFFFF)"></div>
+                <div class="color-option" data-theme="golden" style="background: linear-gradient(45deg, #FFD200, #F7971E)"></div>
+            </div>
+        </div>
+
+        <a href="https://drbaph.dev" target="_blank" class="settings-link">drbaph.dev</a>
+
+    </div>
+
+    <div class="welcome-screen" id="welcomeScreen">
+        <h1 class="welcome-title">AetherStrum</h1>
+        <p class="welcome-subtitle">An interactive Aetherial Strumming experience</p>
+        <button class="start-btn" id="startBtn">Begin Experience</button>
+    </div>
+
+    <div class="info-panel">
+        <button class="control-btn" id="infoBtn">
+            <i class="ph ph-question"></i>
+        </button>
+        <div class="info-tooltip">
+            Click and drag across strings to play them! The effects emanate from where you pluck the string. Try different instruments like guitar, violin, ukulele, banjo or hang drum in the settings panel. Use the record button to capture your performances as WAV files!
+        </div>
+        <a href="https://github.com/Saganaki22/AetherStrum" target="_blank" class="github-link" title="View on GitHub">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+            </svg>
+        </a>
+    </div>
+
+    <script>
+        // Constants
+        const NUM_STRINGS = 13;
+        const FPS = 60;
+        const PI2 = Math.PI * 2;
+        const DECAY_RATE = 0.98;
+        
+        // Configurable Parameters
+        let settings = {
+            vibrationIntensity: 5,
+            stringTension: 0.5,
+            particleDensity: 40,
+            particlesEnabled: true,
+            tracersEnabled: true,
+            colorTheme: 'default',
+            tracerComplexity: 3,
+            volume: 0.5,
+            isPlaying: true, // Start with audio enabled
+            instrument: 'lyra', // Default instrument
+            reverbEnabled: true,
+            reverbAmount: 0.5
+        };
+        
+        // Instrument configurations
+        const instruments = {
+            lyra: {
+                name: "Lyra",
+                scale: 'pentatonic',
+                baseFreq: 220, // A3
+                scaleSteps: [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24, 26, 28], // Pentatonic scale
+                waveform: 'sine',
+                description: "A harp-like instrument with gentle string sounds",
+                harmonics: [
+                    { multiple: 1, amplitude: 1.0 },
+                    { multiple: 2, amplitude: 0.4 },
+                    { multiple: 3, amplitude: 0.2 }
+                ]
+            },
+            guitar: {
+                name: "Guitar",
+                scale: 'major',
+                baseFreq: 196, // G3
+                scaleSteps: [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21], // Major scale
+                waveform: 'triangle',
+                description: "Rich, warm string tones with natural harmonics",
+                harmonics: [
+                    { multiple: 1, amplitude: 1.0 },
+                    { multiple: 2, amplitude: 0.5 },
+                    { multiple: 3, amplitude: 0.3 },
+                    { multiple: 4, amplitude: 0.2 },
+                    { multiple: 5, amplitude: 0.1 }
+                ]
+            },
+            violin: {
+                name: "Violin",
+                scale: 'minor',
+                baseFreq: 293.66, // D4
+                scaleSteps: [0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20], // Minor scale
+                waveform: 'sawtooth',
+                description: "Bright, expressive string sounds with rich overtones",
+                harmonics: [
+                    { multiple: 1, amplitude: 1.0 },
+                    { multiple: 2, amplitude: 0.8 },
+                    { multiple: 3, amplitude: 0.6 },
+                    { multiple: 4, amplitude: 0.4 },
+                    { multiple: 5, amplitude: 0.2 }
+                ]
+            },
+            ukulele: {
+                name: "Ukulele",
+                scale: 'major',
+                baseFreq: 261.63, // C4
+                scaleSteps: [0, 4, 7, 12, 16, 19, 24, 28, 31, 36, 40, 43, 48], // Major chord voicings
+                waveform: 'triangle',
+                description: "Light, bright, island-inspired string sounds",
+                harmonics: [
+                    { multiple: 1, amplitude: 1.0 },
+                    { multiple: 2, amplitude: 0.6 },
+                    { multiple: 3, amplitude: 0.4 },
+                    { multiple: 4, amplitude: 0.2 }
+                ]
+            },
+            banjo: {
+                name: "Banjo",
+                scale: 'mixolydian',
+                baseFreq: 148, // A3
+                scaleSteps: [0, 2, 4, 7, 9, 10, 12, 14, 16, 19, 21, 22, 24], // Mixolydian scale
+                waveform: 'triangle',
+                description: "Twangy, bright folk sound with quick decay",
+                harmonics: [
+                    { multiple: 1, amplitude: 1.0 },
+                    { multiple: 2, amplitude: 0.7 },
+                    { multiple: 3, amplitude: 0.5 },
+                    { multiple: 4, amplitude: 0.3 },
+                    { multiple: 5, amplitude: 0.2 }
+                ]
+            },
+            hangdrum: {
+                name: "Hang Drum",
+                scale: 'custom',  // Handpans vary; "hang" isn't a standard scale name
+                baseFreq: 174.61, // F3 (common for handpans)
+                scaleSteps: [0, 4, 7, 10, 12, 14, 17, 19, 22, 24, 26, 29, 31], // Common D Minor tuning (F3 as root)
+                waveform: 'square', // Metallic "ping" (sine is too soft for handpan attack)
+                description: "Metallic, resonant tones with meditative qualities",
+                harmonics: [
+                    { multiple: 1.0, amplitude: 0.8 },  // Fundamental
+                    { multiple: 2.0, amplitude: 0.5 },  // Octave (critical for metallic sustain)
+                    { multiple: 2.8, amplitude: 0.3 },  // Approximates 7th harmonic (characteristic "inharmonicity")
+                    { multiple: 3.8, amplitude: 0.15 }, // Minor 3rd above octave (adds grit)
+                    { multiple: 5.0, amplitude: 0.05 }  // Reduced to avoid organ-like purity
+                ],
+                envelope: {
+                    attack: 0.05,   // Very quick attack (50 ms) to mimic a mallet strike
+                    decay: 0.5,     // Medium decay so the tone rings briefly
+                    sustain: 0.2,   // Minimal sustain to avoid that continuous, organ-like tone
+                    release: 0.3    // Quick release to let the sound fade naturally
+                }
+            },
+            bassguitar: {
+                name: "Bass Guitar",
+                scale: 'major',
+                baseFreq: 55, // A1 - typical for a standard bass guitar tuning
+                scaleSteps: [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21],
+                waveform: 'triangle',
+                description: "Deep, warm, and punchy tones emulating a classic bass guitar.",
+                harmonics: [
+                    { multiple: 1, amplitude: 1.0 },
+                    { multiple: 2, amplitude: 0.6 },
+                    { multiple: 3, amplitude: 0.2 },
+                    { multiple: 4, amplitude: 0.1 }
+                ]
+            },
+            ocarina: {
+                name: "Ocarina",
+                scale: 'minor',
+                baseFreq: 261.63, // C4
+                scaleSteps: [0, 2, 3, 5, 7, 8, 10, 12, 14, 15, 17, 19, 20],
+                waveform: 'sine',
+                description: "Ethereal, ocarina-like tones with warm, resonant qualities",
+                harmonics: [
+                    { multiple: 1.0, amplitude: 1.0 },  // Emphasize the fundamental
+                    { multiple: 2.0, amplitude: 0.2 },  // Very subtle second harmonic for color
+                    { multiple: 3.0, amplitude: 0.1 }   // Minimal third harmonic
+                ],
+                envelope: {
+                    attack: 0.1,    // Quick yet smooth attack
+                    decay: 1.0,     // Moderate decay
+                    sustain: 0.3,   // Low sustain to avoid lingering
+                    release: 0.5    // Gentle release
+                },
+                vibrato: {
+                    rate: 5,        // 5 Hz vibrato
+                    depth: 0.02     // Subtle pitch modulation
+                },
+                reverb: {
+                    mix: 0.3,       // Ambient space
+                    decay: 1.5      // Mystical tail
+                }
+            }
+        };
+        
+        // Initialize canvas
+        let canvas, ctx, width, height;
+        let strings = [];
+        let audioContext;
+        let masterGainNode;
+        let oscillators = [];
+        let gainNodes = [];
+        let harmonicGains = []; // Array to store gain nodes for harmonics
+        let reverbNode; // Add reverb node
+        let dryGainNode;  // Add dry gain node reference
+        let wetGainNode;  // Add wet gain node reference
+        let mediaRecorder;
+        let isRecording = false;
+        let recordingStartTime = 0;
+        let recordingInterval;
+        let soundWaveCircles = [];
+        
+        // Set up the canvas
+        function initCanvas() {
+            canvas = document.getElementById('lyraCanvas');
+            ctx = canvas.getContext('2d');
+            width = window.innerWidth;
+            height = window.innerHeight;
+            
+            // Set canvas dimensions
+            canvas.width = width * window.devicePixelRatio;
+            canvas.height = height * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        
+        // Sound Wave Circles
+        class SoundWaveCircle {
+            constructor(x, y, strength, color) {
+                this.x = x;
+                this.y = y;
+                this.radius = 5;
+                this.maxRadius = 100 + strength * 10;
+                this.strength = strength;
+                this.alpha = 0.7;
+                this.color = color;
+                this.speed = 2 + strength / 10;
+            }
+            
+            update() {
+                this.radius += this.speed;
+                this.alpha -= 0.01;
+                return this.radius <= this.maxRadius && this.alpha > 0;
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, PI2);
+                ctx.strokeStyle = `${this.color}${Math.floor(this.alpha * 255).toString(16).padStart(2, '0')}`;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            }
+        }
+        
+        // String class
+        class LyraString {
+            constructor(index, x, length) {
+                this.index = index;
+                this.x = x;
+                this.length = length;
+                this.segments = 20;
+                
+                // Initialize arrays
+                this.points = new Array(this.segments + 1);
+                this.velocities = new Array(this.segments + 1);
+                this.tensions = new Array(this.segments + 1);
+                
+                // Set initial positions
+                for (let i = 0; i <= this.segments; i++) {
+                    this.points[i] = height / 2; // Center point
+                    this.velocities[i] = 0;
+                    this.tensions[i] = settings.stringTension;
+                }
+                
+                this.restY = height / 2;
+                this.isPlucked = false;
+                this.pluckStrength = 0;
+                this.pluckPosition = 0;
+                this.pluckY = 0;
+                this.color = this.getColor();
+                this.particles = [];
+                this.tracers = [];
+                
+                // Initialize points and velocities
+            }
+            
+            getColor() {
+                const theme = colorThemes[settings.colorTheme];
+                const ratio = this.index / NUM_STRINGS;
+                const color = this.lerpColor(theme.primary[0], theme.primary[1], ratio);
+                return color;
+            }
+            
+            lerpColor(a, b, t) {
+                const ah = parseInt(a.replace('#', ''), 16);
+                const ar = ah >> 16;
+                const ag = (ah >> 8) & 0xff;
+                const ab = ah & 0xff;
+                
+                const bh = parseInt(b.replace('#', ''), 16);
+                const br = bh >> 16;
+                const bg = (bh >> 8) & 0xff;
+                const bb = bh & 0xff;
+                
+                const rr = ar + t * (br - ar);
+                const rg = ag + t * (bg - ag);
+                const rb = ab + t * (bb - ab);
+                
+                return `#${((1 << 24) + (Math.round(rr) << 16) + (Math.round(rg) << 8) + Math.round(rb)).toString(16).slice(1)}`;
+            }
+            
+            pluck(position, strength) {
+                // Calculate pluck parameters based on position and pressure
+                const relativePosition = Math.max(0, Math.min(1, position));
+                const pluckStrength = strength * 3; // Scale up pressure for more dramatic effect
+                
+                // Create a visual ripple effect at the exact pluck position
+                if (pluckStrength > 3) {
+                    const theme = colorThemes[settings.colorTheme];
+                    const waveColor = this.lerpColor(theme.primary[0], theme.primary[1], Math.random());
+                    soundWaveCircles.push(new SoundWaveCircle(this.x, this.pluckY, pluckStrength, waveColor));
+                }
+                
+                // Pluck the string
+                this.isPlucked = true;
+                this.pluckPosition = Math.floor(relativePosition * this.segments);
+                this.pluckStrength = pluckStrength;
+                this.pluckY = this.restY + (relativePosition - 0.5) * height; // Adjust Y position relative to rest position
+                
+                // Apply displacement to points with pattern based on strength and position
+                if (this.pluckStrength > 30) {
+                    for (let i = 0; i <= this.segments; i++) {
+                        const distFromPluck = Math.abs(i / this.segments - relativePosition);
+                        const t = i / this.segments;
+                        const displacement = this.pluckStrength * (
+                            0.7 * Math.sin(t * Math.PI) * Math.pow(1 - distFromPluck, 1.2) + 
+                            0.2 * Math.sin(3 * t * Math.PI) * Math.pow(1 - distFromPluck, 1.5) + 
+                            0.1 * Math.sin(5 * t * Math.PI) * Math.pow(1 - distFromPluck, 1.8)
+                        );
+                        this.points[i] = this.restY + displacement;
+                    }
+                } else {
+                    for (let i = 0; i <= this.segments; i++) {
+                        const distFromPluck = Math.abs(i / this.segments - relativePosition);
+                        const displacement = this.pluckStrength * Math.sin(distFromPluck * Math.PI * 2) * 
+                                           Math.pow(1 - distFromPluck, 0.8);
+                        this.points[i] = this.restY + displacement;
+                    }
+                }
+                
+                // Trigger sound with harmonics
+                if (settings.isPlaying && audioContext) {
+                    const stringGain = gainNodes[this.index];
+                    const harmonicGainsArray = harmonicGains[this.index];
+                    const instrument = instruments[settings.instrument];
+                    const now = audioContext.currentTime;
+                    
+                    // Get instrument envelope settings
+                    const envelope = instrument.envelope || {
+                        attack: 0.01,
+                        decay: 1.0,
+                        sustain: 0.3,
+                        release: 0.1
+                    };
+
+                    // Calculate volume based on pluck strength
+                    const maxVolume = Math.min(0.25, this.pluckStrength / 40);
+
+                    // Reset any scheduled changes
+                    stringGain.gain.cancelScheduledValues(now);
+                    stringGain.gain.setValueAtTime(0, now);
+
+                    // Apply ADSR envelope
+                    stringGain.gain.linearRampToValueAtTime(maxVolume, now + envelope.attack);
+                    stringGain.gain.linearRampToValueAtTime(maxVolume * envelope.sustain, now + envelope.attack + envelope.decay);
+                    stringGain.gain.linearRampToValueAtTime(0, now + envelope.attack + envelope.decay + envelope.release);
+
+                    // Calculate brightness factor
+                    const brightness = Math.min(1, this.pluckStrength / 30);
+                    
+                    // Adjust harmonic gains
+                    harmonicGainsArray.forEach((harmonicGain, index) => {
+                        const harmonic = instrument.harmonics[index];
+                        const adjustedAmplitude = harmonic.amplitude * (1 + brightness * (harmonic.multiple - 1));
+                        harmonicGain.gain.setValueAtTime(adjustedAmplitude, now);
+                    });
+                    
+                    // Apply position detune to all oscillators
+                    const detuneBase = (relativePosition - 0.5) * 20; // Reduced detune range
+                    oscillators[this.index].forEach((osc, index) => {
+                        // Progressive detuning - higher harmonics get more variation
+                        const harmonicDetune = detuneBase + (Math.random() - 0.5) * (index + 1) * 2;
+                        osc.detune.setValueAtTime(harmonicDetune, now);
+                    });
+                }
+                
+                // Only generate particles if pluck is strong enough
+                const MIN_PARTICLE_THRESHOLD = 15; // Higher threshold to generate particles
+                if (this.pluckStrength > MIN_PARTICLE_THRESHOLD && settings.particlesEnabled) {
+                    // Scale particle count based on how much above threshold we are
+                    const strengthFactor = (this.pluckStrength - MIN_PARTICLE_THRESHOLD) / 40; // 0-1 range for typical strengths
+                    const particleCount = Math.floor(settings.particleDensity * strengthFactor * 0.5); // Half as many particles
+                    
+                    // Generate particles from exact pluck position
+                    for (let i = 0; i < particleCount; i++) {
+                        // Particles emerge from exact pluck point
+                        const x = this.x;
+                        const y = this.pluckY;
+                        
+                        // Particles scatter outward from pluck point with velocity related to pluck strength
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = (Math.random() * 0.3 + 0.2) * this.pluckStrength / 4; // Slower speed
+                        const vx = Math.cos(angle) * speed;
+                        const vy = Math.sin(angle) * speed;
+                        
+                        const size = Math.random() * 2 + 1; // Slightly smaller particles
+                        const life = Math.random() * 1.5 + 1; // Shorter life
+                        const opacity = Math.random() * 0.5 + 0.2; // Lower opacity
+                        this.particles.push({x, y, size, vx, vy, life, opacity, initialLife: life});
+                    }
+                }
+                
+                // Generate tracers with complexity based on strength, centered at pluck position
+                // Greatly increased threshold and decreased probability for very subtle tracer effects
+                const MIN_TRACER_THRESHOLD = 25; // Much higher threshold to generate tracers
+                if (this.pluckStrength > MIN_TRACER_THRESHOLD) {
+                    // Scale tracer probability based on strength, but very conservatively
+                    const strengthFactor = (this.pluckStrength - MIN_TRACER_THRESHOLD) / 50; // 0-1 range, much slower growth
+                    const tracerProbability = Math.min(0.4, strengthFactor); // Much lower max probability
+                    
+                    if (Math.random() < tracerProbability) {
+                        // Scale complexity with strength but keep it very limited
+                        const complexityFactor = Math.max(0.2, strengthFactor * 0.5); // Greatly reduced complexity
+                        const complexity = Math.max(1, Math.floor(settings.tracerComplexity * complexityFactor));
+                        
+                        // Generate minimal tracers at pluck position
+                        for (let i = 0; i < complexity; i++) {
+                            const x = this.x;
+                            const y = this.pluckY; // Use exact pluck position
+                            
+                            // Size varies with distance from center of string (but much smaller overall)
+                            const centerDistance = Math.abs(relativePosition - 0.5) * 2; // 0-1 range
+                            const sizeBoost = 1 + centerDistance * 0.2; // Minimal size boost
+                            
+                            // Much smaller size overall
+                            const size = (Math.random() * 10 + 3 + (this.pluckStrength / 4)) * sizeBoost;
+                            // Much shorter lifespan
+                            const lifespan = Math.random() * 0.8 + 0.4; // 0.4-1.2 seconds (very brief)
+                            
+                            // Use a more muted color
+                            const theme = colorThemes[settings.colorTheme];
+                            let color = this.lerpColor(
+                                theme.secondary[0], 
+                                theme.secondary[1], 
+                                Math.random()
+                            );
+                            
+                            // Desaturate the color slightly for less vibrancy
+                            color = desaturateColor(color, 0.3); // Reduce saturation by 30%
+                            
+                            this.tracers.push({
+                                x, y, size, 
+                                initialSize: size,
+                                lifespan, 
+                                initialLifespan: lifespan, 
+                                color
+                            });
+                        }
+                    }
+                }
+                
+                // Helper function to desaturate a color
+                function desaturateColor(hexColor, amount) {
+                    // Convert hex to RGB
+                    const r = parseInt(hexColor.slice(1, 3), 16);
+                    const g = parseInt(hexColor.slice(3, 5), 16);
+                    const b = parseInt(hexColor.slice(5, 7), 16);
+                    
+                    // Convert RGB to HSL
+                    const rgbToHsl = (r, g, b) => {
+                        r /= 255;
+                        g /= 255;
+                        b /= 255;
+                        
+                        const max = Math.max(r, g, b);
+                        const min = Math.min(r, g, b);
+                        let h, s, l = (max + min) / 2;
+                        
+                        if (max === min) {
+                            h = s = 0; // achromatic
+                        } else {
+                            const d = max - min;
+                            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                            
+                            switch (max) {
+                                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                                case g: h = (b - r) / d + 2; break;
+                                case b: h = (r - g) / d + 4; break;
+                            }
+                            
+                            h /= 6;
+                        }
+                        
+                        return [h, s, l];
+                    };
+                    
+                    // Convert HSL to RGB
+                    const hslToRgb = (h, s, l) => {
+                        let r, g, b;
+                        
+                        if (s === 0) {
+                            r = g = b = l; // achromatic
+                        } else {
+                            const hue2rgb = (p, q, t) => {
+                                if (t < 0) t += 1;
+                                if (t > 1) t -= 1;
+                                if (t < 1/6) return p + (q - p) * 6 * t;
+                                if (t < 1/2) return q;
+                                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                                return p;
+                            };
+                            
+                            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                            const p = 2 * l - q;
+                            
+                            r = hue2rgb(p, q, h + 1/3);
+                            g = hue2rgb(p, q, h);
+                            b = hue2rgb(p, q, h - 1/3);
+                        }
+                        
+                        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+                    };
+                    
+                    // Desaturate by reducing saturation
+                    let [h, s, l] = rgbToHsl(r, g, b);
+                    s = Math.max(0, s - amount); // Reduce saturation by amount
+                    
+                    // Convert back to RGB then to hex
+                    const [r2, g2, b2] = hslToRgb(h, s, l);
+                    
+                    // Convert to hex
+                    const toHex = (c) => {
+                        const hex = c.toString(16);
+                        return hex.length === 1 ? '0' + hex : hex;
+                    };
+                    
+                    return `#${toHex(r2)}${toHex(g2)}${toHex(b2)}`;
+                }
+            }
+            
+            update() {
+                // Update string physics with propagation from pluck point
+                for (let i = 1; i < this.segments; i++) {
+                    const force = settings.stringTension * (
+                        this.points[i - 1] + 
+                        this.points[i + 1] - 
+                        2 * this.points[i]
+                    );
+                    
+                    // Add damping based on distance from pluck point
+                    // This makes vibrations naturally diminish further from pluck point
+                    if (this.isPlucked) {
+                        const distFromPluck = Math.abs(i - this.pluckPosition) / this.segments;
+                        const dampingFactor = 0.99 - (0.01 * distFromPluck); // Stronger damping further from pluck
+                        this.velocities[i] += force;
+                        this.velocities[i] *= dampingFactor * DECAY_RATE;
+                    } else {
+                        this.velocities[i] += force;
+                        this.velocities[i] *= DECAY_RATE;
+                    }
+                }
+                
+                // Update points after all forces are applied
+                for (let i = 1; i < this.segments; i++) {
+                    this.points[i] += this.velocities[i];
+                }
+                
+                // Update particles if enabled
+                if (settings.particlesEnabled && this.particles) {
+                    for (let i = this.particles.length - 1; i >= 0; i--) {
+                        const p = this.particles[i];
+                        
+                        // Add slight attraction to the string for a "magnetic" effect
+                        if (Math.abs(p.x - this.x) > 5) { // Only if particle has moved away from string
+                            const pullStrength = 0.03; // Weaker pull
+                            p.vx += (this.x - p.x) * pullStrength / Math.abs(this.x - p.x);
+                        }
+                        
+                        // Update position with slower movement
+                        p.x += p.vx * 0.7; // Scale down velocity
+                        p.y += p.vy * 0.7;
+                        
+                        // Add slight gravity
+                        p.vy += 0.01; // Less gravity
+                        
+                        // Apply stronger drag to slow particles more
+                        p.vx *= 0.95;
+                        p.vy *= 0.95;
+                        
+                        // Update life and opacity
+                        p.life -= 0.012; // Slower fade
+                        p.opacity = (p.life / p.initialLife) * 0.7 + 0.3;
+                        
+                        // Remove dead particles
+                        if (p.life <= 0) {
+                            this.particles.splice(i, 1);
+                        }
+                    }
+                }
+
+                // Update tracers if enabled
+                if (settings.tracersEnabled && this.tracers) {
+                    for (let i = this.tracers.length - 1; i >= 0; i--) {
+                        const t = this.tracers[i];
+                        // Greatly increase decay rate for much shorter afterglow
+                        t.lifespan -= 0.05; // More than 3x faster decay than original
+                        
+                        // Even gentler pulsing size effect
+                        const pulseRate = 1.2; // Slower pulses
+                        const pulseDepth = 0.05; // Minimal size variation
+                        const baseSize = t.initialSize * (t.lifespan / t.initialLifespan);
+                        const pulseFactor = 1 + pulseDepth * Math.sin(t.lifespan * pulseRate * Math.PI);
+                        t.size = baseSize * pulseFactor;
+                        
+                        // Remove dead tracers
+                        if (t.lifespan <= 0) {
+                            this.tracers.splice(i, 1);
+                        }
+                    }
+                }
+                
+                // Check if string is still vibrating
+                let isVibrating = false;
+                for (let i = 1; i < this.segments; i++) {
+                    if (Math.abs(this.velocities[i]) > 0.1) {
+                        isVibrating = true;
+                        break;
+                    }
+                }
+                
+                if (!isVibrating) {
+                    this.isPlucked = false;
+                }
+                
+                return isVibrating;
+            }
+            
+            draw() {
+                // Draw tracers if enabled
+                if (settings.tracersEnabled && this.tracers) {
+                    for (let i = 0; i < this.tracers.length; i++) {
+                        const t = this.tracers[i];
+                        const opacity = (t.lifespan / t.initialLifespan) * 0.25;
+                        
+                        ctx.beginPath();
+                        const gradient = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, t.size);
+                        // Stronger plucks create more intense glow
+                        const glowAlpha = Math.floor(opacity * 150).toString(16).padStart(2, '0');
+                        
+                        gradient.addColorStop(0, `${t.color}${Math.floor(opacity * 255).toString(16).padStart(2, '0')}`);
+                        gradient.addColorStop(0.5, `${t.color}${Math.floor(opacity * 40).toString(16).padStart(2, '0')}`);
+                        gradient.addColorStop(1, `${t.color}00`);
+                        ctx.fillStyle = gradient;
+                        ctx.arc(t.x, t.y, t.size, 0, PI2);
+                        ctx.fill();
+                    }
+                }
+                
+                // Draw string
+                ctx.beginPath();
+                ctx.moveTo(this.x, 0);
+                
+                for (let i = 0; i <= this.segments; i++) {
+                    const y = this.points[i];
+                    const x = this.x;
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.lineTo(this.x, height);
+                
+                // Calculate vibration intensity based on actual string movement
+                let maxDisplacement = 0;
+                for (let i = 0; i <= this.segments; i++) {
+                    const displacement = Math.abs(this.points[i] - this.restY);
+                    maxDisplacement = Math.max(maxDisplacement, displacement);
+                }
+                
+                // Map max displacement to vibration intensity (with minimum threshold)
+                const MIN_VIBRATION = 0.2; // Minimum visible glow
+                // Scale intensity with max displacement, but more dramatically for stronger plucks
+                let vibrationIntensity = MIN_VIBRATION;
+                if (this.isPlucked) {
+                    // Use a logarithmic scale to make it more responsive to smaller changes
+                    vibrationIntensity = Math.min(1, MIN_VIBRATION + Math.log(1 + maxDisplacement / 5) / Math.log(10));
+                    
+                    // Boost intensity more for stronger plucks
+                    if (this.pluckStrength > 20) {
+                        vibrationIntensity = Math.min(1, vibrationIntensity * 1.5);
+                    }
+                }
+                
+                // Create gradient
+                const gradient = ctx.createLinearGradient(this.x - 5, 0, this.x + 5, 0);
+                const alpha = Math.floor(vibrationIntensity * 255).toString(16).padStart(2, '0');
+                
+                gradient.addColorStop(0, `${this.color}00`);
+                gradient.addColorStop(0.45, `${this.color}00`);
+                gradient.addColorStop(0.5, `${this.color}${alpha}`);
+                gradient.addColorStop(0.55, `${this.color}00`);
+                gradient.addColorStop(1, `${this.color}00`);
+                
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Draw glow effect with intensity based on vibration
+                if (this.isPlucked) {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, 0);
+                    
+                    for (let i = 0; i <= this.segments; i++) {
+                        const y = this.points[i];
+                        const x = this.x;
+                        ctx.lineTo(x, y);
+                    }
+                    
+                    ctx.lineTo(this.x, height);
+                    
+                    // Calculate glow width based on pluck strength
+                    const glowWidth = Math.min(30, 10 + this.pluckStrength / 2);
+                    
+                    const glowGradient = ctx.createLinearGradient(this.x - glowWidth, 0, this.x + glowWidth, 0);
+                    // Stronger plucks create more intense glow
+                    const glowAlpha = Math.floor(vibrationIntensity * 150).toString(16).padStart(2, '0');
+                    
+                    glowGradient.addColorStop(0, `${this.color}00`);
+                    glowGradient.addColorStop(0.4, `${this.color}00`);
+                    glowGradient.addColorStop(0.5, `${this.color}${glowAlpha}`);
+                    glowGradient.addColorStop(0.6, `${this.color}00`);
+                    glowGradient.addColorStop(1, `${this.color}00`);
+                    
+                    ctx.strokeStyle = glowGradient;
+                    // Stronger plucks get wider glow
+                    ctx.lineWidth = Math.min(20, 5 + this.pluckStrength / 5);
+                    ctx.stroke();
+                }
+                
+                // Draw particles if enabled
+                if (settings.particlesEnabled && this.particles) {
+                    for (let i = 0; i < this.particles.length; i++) {
+                        const p = this.particles[i];
+                        const alpha = Math.floor(p.opacity * 255).toString(16).padStart(2, '0');
+                        
+                        ctx.beginPath();
+                        ctx.fillStyle = `${this.color}${alpha}`;
+                        ctx.arc(p.x, p.y, p.size, 0, PI2);
+                        ctx.fill();
+                    }
+                }
+            }
+        }
+        
+        // Color Themes
+        const colorThemes = {
+            default: {
+                primary: ['#00C9FF', '#92FE9D'],
+                secondary: ['#86A8E7', '#D16BA5']
+            },
+            cosmic: {
+                primary: ['#8E2DE2', '#4A00E0'],
+                secondary: ['#AA4465', '#861657']
+            },
+            sunset: {
+                primary: ['#FF416C', '#FF4B2B'],
+                secondary: ['#FCB69F', '#FFECD2']
+            },
+            ocean: {
+                primary: ['#2E3192', '#1BFFFF'],
+                secondary: ['#4364F7', '#6FB1FC']
+            },
+            golden: {
+                primary: ['#FFD200', '#F7971E'],
+                secondary: ['#F9F586', '#F9C976']
+            }
+        };
+        
+        // Create strings
+        function createStrings() {
+            strings = [];
+            const spacing = width / (NUM_STRINGS + 1);
+            
+            for (let i = 0; i < NUM_STRINGS; i++) {
+                const x = spacing * (i + 1);
+                const string = new LyraString(i, x, height);
+                strings.push(string);
+            }
+        }
+        
+        // Audio initialization
+        async function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                await audioContext.resume();
+
+                // Create nodes
+                masterGainNode = audioContext.createGain();
+                masterGainNode.gain.value = 0.7; // Reduce overall volume
+
+                // Create reverb node
+                reverbNode = audioContext.createConvolver();
+                const impulseResponse = await createImpulseResponse();
+                reverbNode.buffer = impulseResponse;
+
+                // Create dry/wet mix nodes
+                dryGainNode = audioContext.createGain();
+                wetGainNode = audioContext.createGain();
+                
+                // Set initial gain values
+                dryGainNode.gain.value = 0.7;
+                wetGainNode.gain.value = 0.3;
+
+                setupAudioRouting();
+
+                // Create oscillators
+                createOscillators();
+
+                // WAV recorder setup
+                let audioSamples = [];
+                let isCapturing = false;
+
+                // Set up a processor node and analyser for capturing audio
+                const scriptNode = audioContext.createScriptProcessor(4096, 2, 2);
+                const analyser = audioContext.createAnalyser();
+                masterGainNode.connect(analyser);
+                analyser.connect(scriptNode);
+                scriptNode.connect(audioContext.destination);
+
+                // For WAV recording
+                scriptNode.onaudioprocess = function(event) {
+                    if (!isCapturing) return;
+
+                    // Get audio data from both channels
+                    const left = event.inputBuffer.getChannelData(0);
+                    const right = event.inputBuffer.getChannelData(1);
+
+                    // Interleave the channels and store
+                    const samples = new Float32Array(left.length * 2);
+                    for (let i = 0; i < left.length; i++) {
+                        samples[i * 2] = left[i];
+                        samples[i * 2 + 1] = right[i];
+                    }
+
+                    audioSamples.push(samples);
+                };
+
+                // Helper to start/stop WAV recording
+                const wavRecorder = {
+                    start: function() {
+                        audioSamples = [];
+                        isCapturing = true;
+                    },
+                    stop: function() {
+                        isCapturing = false;
+                        return this.createWavFile();
+                    },
+                    createWavFile: function() {
+                        // Combine all audio samples
+                        let totalLength = 0;
+                        for (let i = 0; i < audioSamples.length; i++) {
+                            totalLength += audioSamples[i].length;
+                        }
+
+                        const combinedSamples = new Float32Array(totalLength);
+                        let offset = 0;
+                        for (let i = 0; i < audioSamples.length; i++) {
+                            combinedSamples.set(audioSamples[i], offset);
+                            offset += audioSamples[i].length;
+                        }
+
+                        // Create WAV file
+                        const wavBuffer = this.createWavBuffer(combinedSamples);
+                        return new Blob([wavBuffer], { type: 'audio/wav' });
+                    },
+                    createWavBuffer: function(samples) {
+                        const numChannels = 2;
+                        const sampleRate = audioContext.sampleRate;
+                        const bitsPerSample = 16;
+                        const bytesPerSample = bitsPerSample / 8;
+                        const blockAlign = numChannels * bytesPerSample;
+
+                        // Convert float samples to 16-bit PCM
+                        const numSamples = samples.length / numChannels;
+                        const pcmData = new DataView(new ArrayBuffer(numSamples * blockAlign));
+
+                        let pcmOffset = 0;
+                        for (let i = 0; i < samples.length; i++) {
+                            // Convert float to int16
+                            const sample = Math.max(-1, Math.min(1, samples[i]));
+                            const val = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                            pcmData.setInt16(pcmOffset, val, true);
+                            pcmOffset += bytesPerSample;
+                        }
+
+                        // Create WAV file header
+                        const headerSize = 44;
+                        const dataSize = pcmData.byteLength;
+                        const wavData = new DataView(new ArrayBuffer(headerSize + dataSize));
+
+                        // RIFF chunk descriptor
+                        this.writeString(wavData, 0, 'RIFF');
+                        wavData.setUint32(4, 36 + dataSize, true);
+                        this.writeString(wavData, 8, 'WAVE');
+
+                        // fmt sub-chunk
+                        this.writeString(wavData, 12, 'fmt ');
+                        wavData.setUint32(16, 16, true);          // SubChunk1Size
+                        wavData.setUint16(20, 1, true);           // AudioFormat (PCM)
+                        wavData.setUint16(22, numChannels, true); // NumChannels
+                        wavData.setUint32(24, sampleRate, true);  // SampleRate
+                        wavData.setUint32(28, sampleRate * blockAlign, true); // ByteRate
+                        wavData.setUint16(32, blockAlign, true);  // BlockAlign
+                        wavData.setUint16(34, bitsPerSample, true); // BitsPerSample
+
+                        // data sub-chunk
+                        this.writeString(wavData, 36, 'data');
+                        wavData.setUint32(40, dataSize, true);
+
+                        // Copy PCM data
+                        const wavBytes = new Uint8Array(wavData.buffer);
+                        const pcmBytes = new Uint8Array(pcmData.buffer);
+                        wavBytes.set(pcmBytes, headerSize);
+
+                        return wavData.buffer;
+                    },
+                    writeString: function(view, offset, string) {
+                        for (let i = 0; i < string.length; i++) {
+                            view.setUint8(offset + i, string.charCodeAt(i));
+                        }
+                    }
+                };
+
+                // Use our custom WAV recorder instead of MediaRecorder
+                mediaRecorder = {
+                    start: function() {
+                        wavRecorder.start();
+                    },
+                    stop: function() {
+                        const wavBlob = wavRecorder.stop();
+                        const now = new Date();
+                        const timestamp = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+                        const url = URL.createObjectURL(wavBlob);
+
+                        // Create download link
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `aether-strings-${timestamp}.wav`;
+                        a.click();
+                    }
+                };
+            } catch (error) {
+                console.warn('Non-critical audio initialization error:', error);
+            }
+        }
+
+        // Create a smoother impulse response
+        async function createImpulseResponse() {
+            const sampleRate = audioContext.sampleRate;
+            const length = 2 * sampleRate; // 2 seconds
+            const impulse = audioContext.createBuffer(2, length, sampleRate);
+            
+            for (let channel = 0; channel < 2; channel++) {
+                const channelData = impulse.getChannelData(channel);
+                for (let i = 0; i < length; i++) {
+                    // Exponential decay with smoother falloff
+                    const t = i / sampleRate;
+                    channelData[i] = (Math.random() * 2 - 1) * Math.exp(-3 * t);
+                }
+            }
+            return impulse;
+        }
+
+        // Function to handle audio routing
+        function setupAudioRouting() {
+            if (!audioContext || !masterGainNode || !reverbNode || !dryGainNode || !wetGainNode) return;
+
+            // Disconnect existing connections
+            masterGainNode.disconnect();
+            dryGainNode.disconnect();
+            wetGainNode.disconnect();
+            reverbNode.disconnect();
+
+            // Set up new routing
+            if (settings.reverbEnabled) {
+                // Split signal path
+                masterGainNode.connect(dryGainNode);
+                masterGainNode.connect(reverbNode);
+                reverbNode.connect(wetGainNode);
+                
+                // Mix dry and wet signals
+                dryGainNode.connect(audioContext.destination);
+                wetGainNode.connect(audioContext.destination);
+
+                // Adjust mix based on slider
+                const mix = Math.min(settings.reverbAmount * 0.5, 0.5); // Cap reverb amount
+                wetGainNode.gain.value = mix;
+                dryGainNode.gain.value = 0.7 - (mix * 0.3); // Compensate dry signal
+            } else {
+                // Direct routing when reverb is disabled
+                masterGainNode.connect(audioContext.destination);
+            }
+        }
+
+        // Update reverb when slider changes
+        if (reverbSlider) {
+            reverbSlider.addEventListener('input', function() {
+                settings.reverbAmount = parseFloat(this.value);
+                setupAudioRouting();
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            // Clear canvas
+            ctx.clearRect(0, 0, width, height);
+
+            // Update and draw sound wave circles first (background layer)
+            for (let i = soundWaveCircles.length - 1; i >= 0; i--) {
+                const active = soundWaveCircles[i].update();
+                if (active) {
+                    soundWaveCircles[i].draw();
+                } else {
+                    soundWaveCircles.splice(i, 1);
+                }
+            }
+
+            // Update and draw strings
+            for (let i = 0; i < strings.length; i++) {
+                strings[i].update();
+                strings[i].draw();
+            }
+
+            // Request next frame
+            requestAnimationFrame(animate);
+        }
+
+        // Interaction handlers
+        let isInteracting = false;
+        let lastX = 0;
+        let lastY = 0;
+        let lastTime = 0;
+        let velocityX = 0;
+        let velocityY = 0;
+        let interactionPressure = 1;
+        let lastTouchedString = null;
+        let touchedStrings = new Set();
+
+        function pluckString(string, x, y, pressure) {
+            // Calculate pluck parameters based on position and pressure
+            const relativePosition = Math.max(0, Math.min(1, y / height));
+            const strength = pressure * 3; // Scale up pressure for more dramatic effect
+
+            // Create a visual ripple effect at the exact pluck position
+            if (strength > 3) {
+                const theme = colorThemes[settings.colorTheme];
+                const waveColor = string.lerpColor(theme.primary[0], theme.primary[1], Math.random());
+                soundWaveCircles.push(new SoundWaveCircle(x, y, strength, waveColor));
+            }
+
+            // Pluck the string
+            string.pluck(relativePosition, strength);
+        }
+
+        function updateRecordingTime() {
+            const recordingTime = document.getElementById('recordingTime');
+            if (!recordingTime) return;
+
+            const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            recordingTime.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log("DOM content loaded");
+
+            const startBtn = document.getElementById('startBtn');
+            const welcomeScreen = document.getElementById('welcomeScreen');
+
+            if (startBtn) {
+                startBtn.addEventListener('click', async function() {
+                    welcomeScreen.classList.add('fade-out');
+                    setTimeout(async () => {
+                        welcomeScreen.style.display = 'none';
+
+                        // Initialize audio first
+                        await initAudio();
+
+                        // Then initialize everything else
+                        initCanvas();
+                        createStrings();
+                        initUIControls();
+
+                        // Set up interaction event listeners
+                        canvas.addEventListener('mousedown', handleInteractionStart);
+                        canvas.addEventListener('touchstart', handleInteractionStart, { passive: false });
+
+                        window.addEventListener('mousemove', handleInteractionMove);
+                        window.addEventListener('touchmove', handleInteractionMove, { passive: false });
+
+                        window.addEventListener('mouseup', handleInteractionEnd);
+                        window.addEventListener('touchend', handleInteractionEnd);
+
+                        // Add window resize handler
+                        window.addEventListener('resize', function() {
+                            width = window.innerWidth;
+                            height = window.innerHeight;
+                            canvas.width = width * window.devicePixelRatio;
+                            canvas.height = height * window.devicePixelRatio;
+                            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+                            // Recreate strings on resize
+                            createStrings();
+                        });
+
+                        // Start animation
+                        requestAnimationFrame(animate);
+                    }, 300);
+                });
+            }
+        });
+
+        function handleInteractionStart(e) {
+            e.preventDefault();
+
+            isInteracting = true;
+
+            const x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+            const y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+
+            lastX = x;
+            lastY = y;
+            lastTime = performance.now();
+            touchedStrings.clear();
+
+            // See if we're touching any strings to start
+            for (let i = 0; i < strings.length; i++) {
+                const string = strings[i];
+                const distance = Math.abs(string.x - x);
+
+                if (distance < 50) {
+                    pluckString(string, x, y, 5); // Initial gentle pluck
+                    touchedStrings.add(string.index);
+                    lastTouchedString = string;
+                }
+            }
+        }
+
+        function handleInteractionMove(e) {
+            if (!isInteracting) return;
+
+            e.preventDefault();
+
+            const x = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+            const y = e.clientY || (e.touches && e.touches[0].clientY) || 0;
+            const currentTime = performance.now();
+            const deltaTime = (currentTime - lastTime) / 1000; // seconds
+
+            // Calculate velocity
+            if (deltaTime > 0) {
+                velocityX = Math.abs(x - lastX) / deltaTime; // pixels per second
+                velocityY = Math.abs(y - lastY) / deltaTime;
+            }
+
+            // Calculate pressure based on velocity
+            const speed = Math.sqrt(velocityX * velocityX + velocityY * velocityY);
+            interactionPressure = Math.min(15, Math.max(1, speed / 100));
+
+            // Check all strings for interaction
+            for (let i = 0; i < strings.length; i++) {
+                const string = strings[i];
+                const distance = Math.abs(string.x - x);
+
+                // If we're near a string and it's not the one we just played
+                if (distance < 50 && (!touchedStrings.has(string.index) || speed > 500)) {
+                    pluckString(string, x, y, interactionPressure);
+                    touchedStrings.add(string.index);
+                    lastTouchedString = string;
+
+                    // Create sound wave circle
+                    const theme = colorThemes[settings.colorTheme];
+                    const waveColor = string.lerpColor(theme.primary[0], theme.primary[1], Math.random());
+                    soundWaveCircles.push(new SoundWaveCircle(x, y, interactionPressure, waveColor));
+                } else if (distance >= 50) {
+                    // We've moved away from this string, so allow replaying it
+                    touchedStrings.delete(string.index);
+                }
+            }
+
+            lastX = x;
+            lastY = y;
+            lastTime = currentTime;
+        }
+
+        function handleInteractionEnd(e) {
+            // Get final velocity for a dramatic finish if moving fast
+            if (isInteracting && lastTouchedString && interactionPressure > 5) {
+                // Create final sound wave
+                const theme = colorThemes[settings.colorTheme];
+                const waveColor = lastTouchedString.lerpColor(theme.primary[0], theme.primary[1], Math.random());
+                soundWaveCircles.push(new SoundWaveCircle(lastX, lastY, interactionPressure * 2, waveColor));
+
+                // Do a rapid sweep of nearby strings for dramatic effect if we had high velocity
+                if (interactionPressure > 8) {
+                    const stringsToPlay = Math.min(5, Math.floor(interactionPressure / 3));
+                    const stringIndex = strings.indexOf(lastTouchedString);
+
+                    // Play strings in both directions
+                    for (let i = 1; i <= stringsToPlay; i++) {
+                        const leftIndex = stringIndex - i;
+                        const rightIndex = stringIndex + i;
+
+                        if (leftIndex >= 0) {
+                            setTimeout(() => {
+                                if (strings[leftIndex]) {
+                                    const string = strings[leftIndex];
+                                    const yPos = string.restY + (Math.random() * 100 - 50);
+                                    pluckString(string, string.x, yPos, interactionPressure * 0.8);
+                                }
+                            }, i * 50);
+                        }
+
+                        if (rightIndex < strings.length) {
+                            setTimeout(() => {
+                                if (strings[rightIndex]) {
+                                    const string = strings[rightIndex];
+                                    const yPos = string.restY + (Math.random() * 100 - 50);
+                                    pluckString(string, string.x, yPos, interactionPressure * 0.8);
+                                }
+                            }, i * 50);
+                        }
+                    }
+                }
+            }
+
+            isInteracting = false;
+            touchedStrings.clear();
+            lastTouchedString = null;
+        }
+
+        function initUIControls() {
+            console.log("Initializing UI controls");
+
+            const playBtn = document.getElementById('playBtn');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const settingsPanel = document.getElementById('settingsPanel');
+            const settingsClose = document.getElementById('settingsClose');
+            const instrumentSelect = document.getElementById('instrumentSelect');
+            const instrumentDescription = document.getElementById('instrumentDescription');
+            const reverbToggle = document.getElementById('reverbToggle');
+            const reverbMixSlider = document.getElementById('reverbSlider');
+            const autoplayBtn = document.getElementById('autoplayBtn');
+            let isPlayingSong = false;
+            let currentSong = 0; // Track which song to play
+
+            // Song sequence for Saria's Song
+            const sariasSong = [
+                { string: 3, delay: 0 },    // F4
+                { string: 5, delay: 500 },  // A♭4 (approximating A4)
+                { string: 6, delay: 1000 }, // B♭4
+                { string: 3, delay: 1500 }, // F4
+                { string: 5, delay: 2000 }, // A♭4
+                { string: 6, delay: 2500 }, // B♭4
+                { string: 3, delay: 3000 }, // F4
+                { string: 5, delay: 3500 }, // A♭4
+                { string: 6, delay: 4000 }, // B♭4
+                { string: 7, delay: 4500 }, // C5
+                { string: 6, delay: 5000 }, // B♭4
+                { string: 5, delay: 5500 }, // A♭4
+                { string: 3, delay: 6000 }  // F4
+            ];
+
+            // Song sequence for Tetris Theme (Korobeiniki)
+            const tetrisTheme = [
+                // Phrase 1: O - J K M -' K J H -
+                { string: 7, delay: 0 },    // O (E4)
+                { string: null, delay: 250 }, // - (rest)
+                { string: 4, delay: 500 },  // J (C#4)
+                { string: 0, delay: 750 },  // K (A3)
+                { string: 9, delay: 1000 }, // M (F#4)
+                { string: null, delay: 1250 },// - (rest)
+                { string: 0, delay: 1500 }, // K (A3)
+                { string: 4, delay: 1750 }, // J (C#4)
+                { string: 2, delay: 2000 }, // H (B3)
+                { string: null, delay: 2250 },// - (rest)
+
+                // Phrase 2: K O - M K J -
+                { string: 0, delay: 2500 }, // K (A3)
+                { string: 7, delay: 2750 }, // O (E4)
+                { string: null, delay: 3000 },// - (rest)
+                { string: 9, delay: 3250 }, // M (F#4)
+                { string: 0, delay: 3500 }, // K (A3)
+                { string: 4, delay: 3750 }, // J (C#4)
+                { string: null, delay: 4000 },// - (rest)
+
+                // Phrase 3: K M - O - K - H H - -
+                { string: 0, delay: 4250 }, // K (A3)
+                { string: 9, delay: 4500 }, // M (F#4)
+                { string: null, delay: 4750 },// - (rest)
+                { string: 7, delay: 5000 }, // O (E4)
+                { string: null, delay: 5250 },// - (rest)
+                { string: 0, delay: 5500 }, // K (A3)
+                { string: null, delay: 5750 },// - (rest)
+                { string: 2, delay: 6000 }, // H (B3)
+                { string: 2, delay: 6250 }, // H (B3)
+                { string: null, delay: 6500 },// - (rest)
+                { string: null, delay: 6750 },// - (rest)
+
+                // Bridge
+                { string: 7, delay: 7000 },// O
+                { string: null, delay: 7250 },
+                { string: 0, delay: 7500 },// K
+                { string: null, delay: 7750 },
+                { string: 9, delay: 8000 },// M
+                { string: null, delay: 8250 },
+                { string: 4, delay: 8500 },// J
+                { string: null, delay: 8750 },
+                { string: 0, delay: 9000 },// G
+                { string: null, delay: 9250 },
+                { string: 4, delay: 9500 },// J
+                { string: null, delay: 9750 },
+                { string: 7, delay: 10000 },// O
+                { string: null, delay: 10250 },
+                { string: 0, delay: 10500 },// K
+                { string: null, delay: 10750 },
+                { string: 14, delay: 11000 },// T
+                { string: null, delay: 11250 },
+                { string: 9, delay: 11500 },// S
+                { string: null, delay: 11750 },
+
+                // Final Section
+                { string: 7, delay: 12000 },// O
+                { string: null, delay: 12250 },
+                { string: 4, delay: 12500 },// J
+                { string: 0, delay: 12750 },// K
+                { string: 9, delay: 13000 },// M
+                { string: null, delay: 13250 },
+                { string: 0, delay: 13500 },// K
+                { string: 4, delay: 13750 },// J
+                { string: 2, delay: 14000 },// H
+                { string: null, delay: 14250 },
+                { string: 0, delay: 14500 },// K
+                { string: 7, delay: 14750 },// O
+                { string: null, delay: 15000 },
+                { string: 9, delay: 15250 },// M
+                { string: 0, delay: 15500 },// K
+                { string: 4, delay: 15750 },// J
+                { string: null, delay: 16000 },
+                { string: 0, delay: 16250 },// K
+                { string: 9, delay: 16500 },// M
+                { string: null, delay: 16750 },
+                { string: 7, delay: 17000 },// O
+                { string: null, delay: 17250 },
+                { string: 0, delay: 17500 },// K
+                { string: null, delay: 17750 },
+                { string: 2, delay: 18000 },// H
+                { string: 2, delay: 18250 },// H
+                { string: null, delay: 18500 },
+                { string: null, delay: 18750 },
+                { string: 9, delay: 19000 },// M
+                { string: null, delay: 19250 },
+                { string: 12, delay: 19500 },// P
+                { string: 14, delay: 19750 },// T
+                { string: null, delay: 20000 },
+                { string: 7, delay: 20250 },// R
+                { string: 12, delay: 20500 },// P
+                { string: 7, delay: 20750 },// O
+                { string: null, delay: 21000 }
+            ];
+            const songs = [sariasSong, tetrisTheme];
+            const songDurations = [6500, 31500]; // Duration of each song in ms
+
+            // Autoplay button click handler
+            autoplayBtn.addEventListener('click', function() {
+                if (isPlayingSong || settings.instrument !== 'ocarina') return;
+                
+                isPlayingSong = true;
+                const song = songs[currentSong];
+                
+                song.forEach(note => {
+                    if (note.string !== null) {
+                        setTimeout(() => {
+                            if (strings[note.string]) {
+                                const string = strings[note.string];
+                                const yPos = string.restY + (Math.random() * 100 - 50);
+                                pluckString(string, string.x, yPos, 8);
+                            }
+                        }, note.delay);
+                    }
+                });
+
+                setTimeout(() => {
+                    isPlayingSong = false;
+                    // Switch to next song for next play
+                    currentSong = (currentSong + 1) % songs.length;
+                }, songDurations[currentSong]);
+            });
+
+            if (playBtn) {
+                playBtn.addEventListener('click', async function() {
+                    // Resume AudioContext after user interaction
+                    if (audioContext && audioContext.state === 'suspended') {
+                        await audioContext.resume();
+                    }
+
+                    settings.isPlaying = !settings.isPlaying;
+                    this.classList.toggle('active');
+
+                    if (settings.isPlaying) {
+                        playBtn.innerHTML = '<i class="ph ph-speaker-high"></i>';
+                    } else {
+                        playBtn.innerHTML = '<i class="ph ph-speaker-slash"></i>';
+
+                        // Mute all strings
+                        if (masterGainNode) {
+                            masterGainNode.gain.cancelScheduledValues(audioContext.currentTime);
+                            masterGainNode.gain.setValueAtTime(masterGainNode.gain.value, audioContext.currentTime);
+                            masterGainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
+                        }
+                    }
+                });
+            }
+
+            if (settingsBtn && settingsPanel) {
+                settingsBtn.addEventListener('click', function() {
+                    settingsPanel.classList.toggle('open');
+                    settingsBtn.classList.toggle('active');
+                });
+            }
+
+            if (settingsClose && settingsPanel) {
+                settingsClose.addEventListener('click', function() {
+                    settingsPanel.classList.remove('open');
+                    settingsBtn.classList.remove('active');
+                });
+            }
+
+            if (instrumentSelect) {
+                instrumentSelect.addEventListener('change', function() {
+                    const selectedInstrument = this.value;
+                    console.log("Instrument changed to: " + selectedInstrument);
+
+                    settings.instrument = selectedInstrument;
+                    autoplayBtn.classList.toggle('visible', selectedInstrument === 'ocarina');
+
+                    // Update description
+                    if (instrumentDescription && instruments[selectedInstrument]) {
+                        instrumentDescription.textContent = instruments[selectedInstrument].description;
+                    }
+
+                    createOscillators();
+                });
+            }
+
+            if (reverbToggle) {
+                reverbToggle.addEventListener('change', function() {
+                    settings.reverbEnabled = this.checked;
+                    createOscillators();
+                });
+            }
+
+            if (reverbMixSlider) {
+                reverbMixSlider.addEventListener('input', function() {
+                    const value = parseFloat(this.value);
+                    if (wetGainNode && dryGainNode) {
+                        wetGainNode.gain.value = value;
+                        dryGainNode.gain.value = 1 - value;
+                    }
+                });
+            }
+
+            // Color buttons
+            const colorButtons = document.querySelectorAll('.color-option');
+            colorButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const color = this.getAttribute('data-theme');
+                    if (color) {
+                        settings.colorTheme = color;
+                        updateColors();
+                    }
+                });
+            });
+
+            function updateColors() {
+                // Update string colors
+                strings.forEach(string => {
+                    string.color = string.getColor();
+                });
+
+                // Update button active states
+                colorButtons.forEach(button => {
+                    if (button.getAttribute('data-theme') === settings.colorTheme) {
+                        button.classList.add('active');
+                    } else {
+                        button.classList.remove('active');
+                    }
+                });
+            }
+        }
+
+        // Function to create oscillators for the current instrument
+        function createOscillators() {
+            console.log("Creating oscillators for instrument: " + settings.instrument);
+
+            // Clean up existing oscillators and gain nodes
+            oscillators.forEach(oscArray => {
+                oscArray.forEach(osc => osc.stop());
+            });
+            oscillators = [];
+            gainNodes = [];
+            harmonicGains = [];
+
+            const instrument = instruments[settings.instrument];
+            if (!instrument) return;
+
+            // Create oscillators for each string
+            for (let i = 0; i < NUM_STRINGS; i++) {
+                const stringOscillators = [];
+                const harmonicGainsArray = [];
+                const stringGain = audioContext.createGain();
+                stringGain.gain.value = 0;
+
+                // Calculate base frequency for this string
+                const baseFreq = instrument.baseFreq * Math.pow(2, instrument.scaleSteps[i] / 12);
+
+                // Create vibrato oscillator if the instrument has vibrato
+                let vibratoOsc, vibratoGain;
+                if (instrument.vibrato) {
+                    vibratoOsc = audioContext.createOscillator();
+                    vibratoGain = audioContext.createGain();
+
+                    vibratoOsc.frequency.value = instrument.vibrato.rate;
+                    vibratoGain.gain.value = baseFreq * instrument.vibrato.depth;
+
+                    vibratoOsc.connect(vibratoGain);
+                }
+
+                // Create oscillators for each harmonic
+                instrument.harmonics.forEach((harmonic, j) => {
+                    const osc = audioContext.createOscillator();
+                    const harmonicGain = audioContext.createGain();
+
+                    osc.type = instrument.waveform;
+                    osc.frequency.value = baseFreq * harmonic.multiple;
+                    harmonicGain.gain.value = harmonic.amplitude;
+
+                    // Connect vibrato if present
+                    if (vibratoGain) {
+                        vibratoGain.connect(osc.frequency);
+                    }
+
+                    osc.connect(harmonicGain);
+                    harmonicGain.connect(stringGain);
+
+                    stringOscillators.push(osc);
+                    harmonicGainsArray.push(harmonicGain);
+                    osc.start();
+                });
+
+                // Start vibrato oscillator if present
+                if (vibratoOsc) {
+                    vibratoOsc.start();
+                }
+
+                // Connect through reverb if instrument has reverb settings
+                if (instrument.reverb && settings.reverbEnabled) {
+                    stringGain.connect(dryGainNode);
+                    stringGain.connect(reverbNode);
+                    wetGainNode.gain.value = instrument.reverb.mix;
+                    dryGainNode.gain.value = 1 - instrument.reverb.mix;
+                } else {
+                    stringGain.connect(masterGainNode);
+                }
+
+                oscillators.push(stringOscillators);
+                gainNodes.push(stringGain);
+                harmonicGains.push(harmonicGainsArray);
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log("DOM content loaded");
+
+            initCanvas();
+            await initAudio();
+            createStrings();
+            animate();
+            initUIControls();
+        });
+    </script>
+    <script>
+        const recordBtn = document.getElementById('recordBtn');
+        if (recordBtn) {
+            recordBtn.addEventListener('click', function() {
+                if (!audioContext) {
+                    initAudio();
+                }
+                
+                if (!isRecording) {
+                    // Start recording
+                    if (mediaRecorder) {
+                        mediaRecorder.start();
+                        isRecording = true;
+                        recordBtn.classList.add('recording');
+                        recordingTime.classList.add('visible');
+                        
+                        // Change to a red circle (dot) when recording
+                        recordBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF4B4B" viewBox="0 0 256 256">
+                                <circle cx="128" cy="128" r="96" />
+                            </svg>
+                        `;
+                        
+                        // Start timer
+                        recordingStartTime = Date.now();
+                        recordingInterval = setInterval(updateRecordingTime, 1000);
+                        
+                        // Ensure audio is playing
+                        if (!settings.isPlaying) {
+                            settings.isPlaying = true;
+                            playBtn.innerHTML = '<i class="ph ph-speaker-high"></i>';
+                            playBtn.classList.add('active');
+                        }
+                    } else {
+                        alert('Recording is not supported in this browser.');
+                    }
+                } else {
+                    // Stop recording
+                    if (mediaRecorder) {
+                        mediaRecorder.stop();
+                        isRecording = false;
+                        recordBtn.classList.remove('recording');
+                        recordingTime.classList.remove('visible');
+                        
+                        // Change back to microphone icon
+                        recordBtn.innerHTML = `
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#FF4B4B" viewBox="0 0 256 256">
+                                <path d="M128,176a48.05,48.05,0,0,0,48-48V64a48,48,0,0,0-96,0v64A48.05,48.05,0,0,0,128,176ZM96,64a32,32,0,0,1,64,0v64a32,32,0,0,1-64,0Zm40,143.54V232a8,8,0,0,1-16,0V207.54A80.09,80.09,0,0,1,48,128a8,8,0,0,1,16,0,64,64,0,0,0,128,0,8,8,0,0,1,16,0A80.09,80.09,0,0,1,136,207.54Z"></path>
+                            </svg>
+                        `;
+                        
+                        // Stop timer
+                        clearInterval(recordingInterval);
+                    }
+                }
+            });
+        }
+
+        const particlesToggle = document.getElementById('particlesToggle');
+        if (particlesToggle) {
+            particlesToggle.checked = settings.particlesEnabled;
+            particlesToggle.addEventListener('change', function() {
+                settings.particlesEnabled = this.checked;
+                // Clear all particles if disabled
+                if (!settings.particlesEnabled) {
+                    strings.forEach(string => {
+                        string.particles = [];
+                    });
+                }
+            });
+        }
+
+        const particleSlider = document.getElementById('particleSlider');
+        if (particleSlider) {
+            particleSlider.value = settings.particleDensity;
+            particleSlider.addEventListener('input', function() {
+                settings.particleDensity = parseInt(this.value);
+            });
+        }
+
+        const tracersToggle = document.getElementById('tracersToggle');
+        if (tracersToggle) {
+            tracersToggle.checked = settings.tracersEnabled;
+            tracersToggle.addEventListener('change', function() {
+                settings.tracersEnabled = this.checked;
+                // Clear all tracers if disabled
+                if (!settings.tracersEnabled) {
+                    strings.forEach(string => {
+                        string.tracers = [];
+                    });
+                }
+            });
+        }
+
+        const tracerSlider = document.getElementById('tracerSlider');
+        if (tracerSlider) {
+            tracerSlider.value = settings.tracerComplexity;
+            tracerSlider.addEventListener('input', function() {
+                settings.tracerComplexity = parseInt(this.value);
+                // Immediately update all strings to use the new tracer complexity
+                if (settings.tracersEnabled) {
+                    strings.forEach(string => {
+                        string.tracers = string.tracers.slice(0, settings.tracerComplexity);
+                    });
+                }
+            });
+        }
+
+        const reverbToggle = document.getElementById('reverbToggle');
+        if (reverbToggle) {
+            reverbToggle.checked = settings.reverbEnabled;
+            reverbToggle.addEventListener('change', function() {
+                settings.reverbEnabled = this.checked;
+                setupAudioRouting();
+            });
+        }
+
+        const reverbSlider = document.getElementById('reverbSlider');
+        if (reverbSlider) {
+            reverbSlider.value = settings.reverbAmount;
+            reverbSlider.addEventListener('input', function() {
+                settings.reverbAmount = parseFloat(this.value);
+                if (settings.reverbEnabled) {
+                    dryGainNode.gain.value = 1 - settings.reverbAmount;
+                    wetGainNode.gain.value = settings.reverbAmount;
+                }
+            });
+        }
+
+        const volumeSlider = document.getElementById('volumeSlider');
+        if (volumeSlider) {
+            volumeSlider.addEventListener('input', function() {
+                settings.volume = parseFloat(this.value);
+                if (masterGainNode) {
+                    masterGainNode.gain.value = settings.volume;
+                }
+            });
+        }
+    </script>
+    <button class="control-btn autoplay-btn" id="autoplayBtn">
+        <i class="ph ph-music-notes"></i>
+    </button>
+</body>
+</html>
